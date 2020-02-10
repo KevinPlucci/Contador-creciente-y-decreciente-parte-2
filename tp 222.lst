@@ -1,0 +1,100 @@
+---------------------------------------------
+PIC ASSEMBLER LISTING
+Line    Address Opcode  Instruction
+---------------------------------------------
+0001    0000            		org 0
+0002    0000    1683    		bsf status,5
+0003    0001    0185    		clrf trisa
+0004    0002    0186    		clrf trisb
+0005    0003    1485    		bsf trisa,1
+0006    0004    1505    		bsf trisa,2
+0007    0005    3086    		movlw b'10000110' ;timer
+0008    0006    0081    		movwf option
+0009    0007    1283    		bcf status,5 
+0010    0008    019A    		clrf 1ah ;limpieza del banco
+0011    0009    1185    		bcf porta,3 ;apagas el led (por las dudas)
+0012    000A    2049    		call mostrar 
+0013    000B    1C85    inicio		btfss porta,1 ;pregunta para incrementar
+0014    000C    2811    		goto a
+0015    000D    2030    		call anti
+0016    000E    1C85    		btfss porta,1
+0017    000F    2811    		goto a
+0018    0010    2817    		goto b
+0019    0011    1D05    a		btfss porta,2 ;pregunta para decrecer
+0020    0012    280B    		goto inicio
+0021    0013    2030    		call anti
+0022    0014    1D05    		btfss porta,2
+0023    0015    280B    		goto inicio
+0024    0016    281E    		goto prote
+0025    0017    3063    b		movlw d'99'
+0026    0018    021A    		subwf 1ah,w ;limite 99 
+0027    0019    1903    		btfsc status,z   ;pregunta si llego a 0
+0028    001A    280B    		goto inicio
+0029    001B    0A9A    r		incf 1ah,f
+0030    001C    2049    		call mostrar
+0031    001D    280B    		goto inicio
+0032    001E    300B    prote		movlw d'11' ;si es menor a 6 no puede contar
+0033    001F    021A    		subwf 1ah,w
+0034    0020    1903    		btfsc status,z
+0035    0021    280B    		goto inicio
+0036    0022    1C03    		btfss status,c 
+0037    0023    280B    		goto inicio
+0038    0024    2039    dec		call dem1
+0039    0025    039A    		decf 1ah,f
+0040    0026    2049    		call mostrar
+0041    0027    1D03    		btfss status,z
+0042    0028    2824    		goto dec
+0043    0029    1585    		bsf  porta,3 ;prende el led
+0044    002A    1C85    e		btfss porta,1 ;bucle
+0045    002B    282A    		goto e
+0046    002C    1185    		bcf porta,3
+0047    002D    019A    		clrf 1Ah
+0048    002E    2030    		call anti
+0049    002F    281B    		goto r
+0050    0030    01CD    anti		clrf 4dh ;limpio
+0051    0031    01CE    		clrf 4eh
+0052    0032    302E    		movlw d'46' ;anti 35 mS
+0053    0033    00CE    		movwf 4eh
+0054    0034    0BCD    no		decfsz 4dh,f ;Limite 0
+0055    0035    2834    		goto no
+0056    0036    0BCE    		decfsz 4eh,f
+0057    0037    2834    		goto no
+0058    0038    0008    		return
+0059    0039    01CF    dem1		clrf 4fh
+0060    003A    3010    		movlw d'16' 
+0061    003B    00CF    		movwf 4fh
+0062    003C    0BCF    bucletres	decfsz 4fh,f
+0063    003D    283F    		goto bucleuno
+0064    003E    2841    		goto bucledos
+0065    003F    2042    bucleuno	call dem
+0066    0040    283C    		goto bucletres
+0067    0041    0008    bucledos	return
+0068    0042    0181    dem		clrf tmr0
+0069    0043    303D    		movlw d'61' ;calculo de demora
+0070    0044    0081    		movwf tmr0
+0071    0045    1D0B    n		btfss intcon,2
+0072    0046    2845    		goto n
+0073    0047    110B    		bcf intcon,2
+0074    0048    0008    		return
+0075    0049    019C    mostrar		clrf 1ch
+0076    004A    01AC    		clrf 2ch
+0077    004B    081A    		movfw 1ah
+0078    004C    009C    		movwf 1ch
+0079    004D    300A    decena		movlw d'10'
+0080    004E    021C    		subwf 1ch,w
+0081    004F    1C03    		btfss status,c
+0082    0050    2854    		goto unidad
+0083    0051    0AAC    		incf 2ch,f
+0084    0052    009C    		movwf 1ch
+0085    0053    284D    		goto decena
+0086    0054    0DAC    unidad		rlf 2ch,f
+0087    0055    0DAC    		rlf 2ch,f
+0088    0056    0DAC    		rlf 2ch,f
+0089    0057    0DAC    		rlf 2ch,f
+0090    0058    081C    		movfw 1ch
+0091    0059    072C    		addwf 2ch,w
+0092    005A    0086    		movwf portb
+0093    005B    0008    		return
+0094    005C            		end
+---------------------------------------------
+Number of errors = 0
